@@ -42,7 +42,7 @@ object TimedTaskScheduler {
             runTask(context, timedTask)
             return
         }
-        if (!force && timedTask.isScheduled || millis - System.currentTimeMillis() > SCHEDULE_TASK_MIN_TIME) {
+        if (!force && timedTask.isScheduled && millis - System.currentTimeMillis() <= SCHEDULE_TASK_MIN_TIME) {
             return
         }
         scheduleTask(context, timedTask, millis, force)
@@ -56,12 +56,12 @@ object TimedTaskScheduler {
         }
         val timeWindow = millis - System.currentTimeMillis()
         timedTask.isScheduled = true
-        TimedTaskManager.updateTaskWithoutReScheduling(timedTask)
+        TimedTaskManager.updateTaskWithoutReSchedulingSync(timedTask)
         if (timeWindow <= 0) {
             runTask(context, timedTask)
             return
         }
-        cancel(timedTask)
+        cancel(timedTask, resetState = false)
         Log.d(LOG_TAG, "schedule task: task = $timedTask, millis = $millis, timeWindow = $timeWindow")
         JobRequest.Builder(timedTask.id.toString())
             .setExact(timeWindow)
@@ -70,9 +70,14 @@ object TimedTaskScheduler {
     }
 
     @JvmStatic
-    fun cancel(timedTask: TimedTask) {
+    fun cancel(timedTask: TimedTask, resetState: Boolean = true) {
         val cancelCount = JobManager.instance().cancelAllForTag(timedTask.id.toString())
-        Log.d(LOG_TAG, "cancel task: task = $timedTask, cancel = $cancelCount")
+        if (resetState) {
+            // Clear cached scheduling data when explicitly cancelling a task
+            timedTask.isScheduled = false
+            timedTask.scheduledTime = -1
+        }
+        Log.d(LOG_TAG, "cancel task: task = $timedTask, resetState = $resetState, cancel = $cancelCount")
     }
 
     fun init(context: Context) {

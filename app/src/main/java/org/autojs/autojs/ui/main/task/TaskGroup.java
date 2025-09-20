@@ -70,18 +70,21 @@ public abstract class TaskGroup implements Parent<Task> {
             for (IntentTask intentTask : TimedTaskManager.getAllIntentTasksAsList()) {
                 mTasks.add(new Task.PendingTask(getContext(), intentTask));
             }
+            sortPendingTasks();
         }
 
         public int addTask(Object task) {
-            int pos = mTasks.size();
+            Task.PendingTask pendingTask;
             if (task instanceof TimedTask) {
-                mTasks.add(new Task.PendingTask(getContext(), (TimedTask) task));
+                pendingTask = new Task.PendingTask(getContext(), (TimedTask) task);
             } else if (task instanceof IntentTask) {
-                mTasks.add(new Task.PendingTask(getContext(), (IntentTask) task));
+                pendingTask = new Task.PendingTask(getContext(), (IntentTask) task);
             } else {
                 throw new IllegalArgumentException(str(R.string.error_illegal_argument, "task", task));
             }
-            return pos;
+            int insertIndex = getInsertIndex(pendingTask);
+            mTasks.add(insertIndex, pendingTask);
+            return insertIndex;
         }
 
         public int removeTask(Object data) {
@@ -101,18 +104,80 @@ public abstract class TaskGroup implements Parent<Task> {
             return -1;
         }
 
-        public int updateTask(Object task) {
+        public UpdateResult updateTask(Object task) {
             int i = indexOf(task);
-            if (i >= 0) {
-                if (task instanceof TimedTask) {
-                    ((Task.PendingTask) mTasks.get(i)).setTimedTask((TimedTask) task);
-                } else if (task instanceof IntentTask) {
-                    ((Task.PendingTask) mTasks.get(i)).setIntentTask((IntentTask) task);
-                } else {
-                    throw new IllegalArgumentException(str(R.string.error_illegal_argument, "task", task));
+            if (i < 0) {
+                return UpdateResult.notFound();
+            }
+
+            Task.PendingTask pendingTask = (Task.PendingTask) mTasks.remove(i);
+            if (task instanceof TimedTask) {
+                pendingTask.setTimedTask((TimedTask) task);
+            } else if (task instanceof IntentTask) {
+                pendingTask.setIntentTask((IntentTask) task);
+            } else {
+                throw new IllegalArgumentException(str(R.string.error_illegal_argument, "task", task));
+            }
+
+            int newIndex = getInsertIndex(pendingTask);
+            mTasks.add(newIndex, pendingTask);
+            return UpdateResult.of(i, newIndex);
+        }
+
+        private int getInsertIndex(Task.PendingTask pendingTask) {
+            long target = pendingTask.getNextRunAtMillis();
+            for (int idx = 0; idx < mTasks.size(); idx++) {
+                Task.PendingTask existing = (Task.PendingTask) mTasks.get(idx);
+                long existingTarget = existing.getNextRunAtMillis();
+                if (Long.compare(target, existingTarget) < 0) {
+                    return idx;
                 }
             }
-            return i;
+            return mTasks.size();
+        }
+
+        private void sortPendingTasks() {
+            mTasks.sort((task1, task2) -> {
+                Task.PendingTask pending1 = (Task.PendingTask) task1;
+                Task.PendingTask pending2 = (Task.PendingTask) task2;
+                return Long.compare(pending1.getNextRunAtMillis(), pending2.getNextRunAtMillis());
+            });
+        }
+
+        public static class UpdateResult {
+            private final boolean mFound;
+            private final int mFromIndex;
+            private final int mToIndex;
+
+            private UpdateResult(boolean found, int fromIndex, int toIndex) {
+                mFound = found;
+                mFromIndex = fromIndex;
+                mToIndex = toIndex;
+            }
+
+            public static UpdateResult notFound() {
+                return new UpdateResult(false, -1, -1);
+            }
+
+            public static UpdateResult of(int fromIndex, int toIndex) {
+                return new UpdateResult(true, fromIndex, toIndex);
+            }
+
+            public boolean isFound() {
+                return mFound;
+            }
+
+            public boolean isMoved() {
+                return mFound && mFromIndex != mToIndex;
+            }
+
+            public int getFromIndex() {
+                return mFromIndex;
+            }
+
+            public int getToIndex() {
+                return mToIndex;
+            }
         }
     }
 

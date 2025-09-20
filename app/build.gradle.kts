@@ -740,9 +740,7 @@ android {
         // Configures multiple APKs based on ABI.
         abi {
             // Enables building multiple APKs per ABI.
-            isEnable = /* isNotAssembleInrt */ gradle.startParameter.taskNames.none {
-                it.contains(Regex("^(:?$flavorNameApp:)?$buildActionAssemble$flavorNameInrt", IGNORE_CASE))
-            }
+            isEnable = true
             // By default, all ABIs are included, so use reset() and include to specify that we only
             // want APKs for x86 and x86_64.
             // Resets the list of ABIs that Gradle should create APKs for to none.

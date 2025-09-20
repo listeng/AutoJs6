@@ -171,6 +171,10 @@ object TimedTaskManager {
             .subscribe(Observers.emptyConsumer()) { obj: Throwable -> obj.printStackTrace() }
     }
 
+    fun updateTaskWithoutReSchedulingSync(task: TimedTask) {
+        mTimedTaskDatabase.updateSync(task)
+    }
+
     @SuppressLint("CheckResult")
     fun notifyTaskScheduled(timedTask: TimedTask) {
         timedTask.isScheduled = true
@@ -187,8 +191,9 @@ object TimedTaskManager {
                 .subscribe(Observers.emptyConsumer()) { obj: Throwable -> obj.printStackTrace() }
         } else {
             task.isScheduled = false
-            mTimedTaskDatabase.update(task)
-                .subscribe(Observers.emptyConsumer()) { obj: Throwable -> obj.printStackTrace() }
+            // Clear cached run time and immediately reschedule to persist the next trigger point
+            task.scheduledTime = -1
+            scheduleTaskIfNeeded(globalAppContext, task, false)
         }
     }
 

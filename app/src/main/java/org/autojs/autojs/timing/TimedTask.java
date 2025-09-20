@@ -94,6 +94,11 @@ public class TimedTask extends BaseModel {
             return mScheduledTime;
         }
         
+        // If there's a cached scheduled time, return it to maintain consistency
+        if (mScheduledTime > 0) {
+            return mScheduledTime;
+        }
+        
         long baseTime;
         if (isDisposable()) {
             baseTime = mMillis;
@@ -108,11 +113,13 @@ public class TimedTask extends BaseModel {
             baseTime = getNextTimeOfWeeklyTask(context);
         }
         
-        // Apply random offset if configured
+        // Apply random offset if configured and cache the result
         if (mRandomSeconds > 0 && baseTime > 0) {
             // Generate random offset between 0 and +mRandomSeconds (only forward)
             int randomOffset = (int) (Math.random() * (mRandomSeconds + 1));
             baseTime += randomOffset * 1000L; // Convert seconds to milliseconds
+            // Cache the calculated time to avoid recalculation
+            mScheduledTime = baseTime;
         }
         
         return baseTime;
@@ -218,10 +225,8 @@ public class TimedTask extends BaseModel {
 
     public void setRandomSeconds(int randomSeconds) {
         mRandomSeconds = randomSeconds;
-        // Clear scheduled time when random seconds change
-        if (mScheduled) {
-            mScheduledTime = -1;
-        }
+        // Clear scheduled time when random seconds change to force recalculation
+        mScheduledTime = -1;
     }
 
     public boolean isDaily() {

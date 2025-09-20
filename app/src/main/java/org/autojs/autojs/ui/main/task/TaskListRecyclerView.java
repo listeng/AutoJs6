@@ -176,12 +176,16 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
                 refresh();
             }
         } else if (taskChange.getAction() == ModelChange.UPDATE) {
-            final int i = mPendingTaskGroup.updateTask(taskChange.getData());
-            if (i >= 0) {
-                mAdapter.notifyChildChanged(1, i);
-            } else {
+            TaskGroup.PendingTaskGroup.UpdateResult result = mPendingTaskGroup.updateTask(taskChange.getData());
+            if (!result.isFound()) {
                 refresh();
+                return;
             }
+            if (result.isMoved()) {
+                refresh();
+                return;
+            }
+            mAdapter.notifyChildChanged(1, result.getToIndex());
         }
     }
 

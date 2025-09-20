@@ -33,17 +33,34 @@ This is an Android project built with:
 
 ### Testing
 ```bash
-# Run tests
+# Run all unit tests
 ./gradlew test
+
+# Run unit tests for specific build variants
+./gradlew testDebugUnitTest
+./gradlew testAppDebugUnitTest
+./gradlew testInrtDebugUnitTest
 
 # Run Android instrumentation tests
 ./gradlew connectedAndroidTest
+./gradlew connectedDebugAndroidTest
+
+# Run all checks (tests + lint)
+./gradlew check
 ```
 
 ### Lint and Code Quality
 ```bash
 # Run lint checks
 ./gradlew lint
+
+# Run lint for specific variants
+./gradlew lintDebug
+./gradlew lintAppDebug
+./gradlew lintInrtDebug
+
+# Run lint and apply safe fixes
+./gradlew lintFix
 
 # Check for Kotlin code style issues
 ./gradlew ktlintCheck
@@ -61,6 +78,7 @@ This is an Android project built with:
     - `project/` - Project and build system for scripts
     - `runtime/` - Runtime APIs exposed to scripts
     - `service/` - Background services and accessibility service
+    - `timing/` - Scheduled task system (TimedTask, TimedTaskManager, TimedTaskScheduler)
 
 ### Modules
 - `modules/` - Modular components:
@@ -90,9 +108,17 @@ This is an Android project built with:
 - Template APK (`template.apk`) must be built using `inrt:assemble` task before packaging functionality works
 - If you see `java.io.FileNotFoundException: template.apk`, run the inrt assembly task
 
+### Timing System
+- Core scheduling functionality in `app/src/main/java/org/autojs/autojs/timing/`
+- `TimedTask.java` - Task data model with support for random delays
+- `TimedTaskManager.kt` - Task lifecycle management
+- `TimedTaskScheduler.kt` - Android AlarmManager integration for scheduling
+- `TimedTaskDatabase.java` - SQLite persistence layer
+- UI components in `app/src/main/java/org/autojs/autojs/ui/timing/`
+
 ### Version Management
 - Version information stored in `version.properties`
-- Current version: 6.6.4 (build 3274)
+- Current version: 6.7.2 (build 3279)
 - Supports Android API 24+ (Android 7.0+)
 
 ### Build Configuration
