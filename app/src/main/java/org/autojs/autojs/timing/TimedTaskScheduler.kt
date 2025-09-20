@@ -32,7 +32,12 @@ object TimedTaskScheduler {
 
     @JvmStatic
     fun scheduleTaskIfNeeded(context: Context?, timedTask: TimedTask, force: Boolean) {
-        val millis = timedTask.getNextTime(context)
+        // Calculate and set the scheduled time if not already set
+        if (!timedTask.isScheduled || timedTask.scheduledTime <= 0) {
+            timedTask.calculateAndSetScheduledTime(context)
+        }
+        
+        val millis = timedTask.scheduledTime
         if (millis <= System.currentTimeMillis()) {
             runTask(context, timedTask)
             return

@@ -502,7 +502,7 @@ android {
             // @Reference to kkevsekk1/AutoX (https://github.com/kkevsekk1/AutoX) by SuperMonster003 on Nov 16, 2023.
             //  ! https://github.com/kkevsekk1/AutoX/blob/a6d482189291b460c3be60970b74c5321d26e457/inrt/build.gradle.kts#L93
             // noinspection ChromeOsAbiSupport
-            ndk.abiFilters += ""
+            // ndk.abiFilters += "" // Commented out to avoid conflicts with splits.abi configuration
 
             gradle.taskGraph.whenReady(object : Action<TaskExecutionGraph> {
                 override fun execute(taskGraph: TaskExecutionGraph) {
@@ -526,8 +526,8 @@ android {
 
                                 val verName = versionName?.replace(Regex("\\s"), "-")?.lowercase()
 
-                                /* e.g. inrt-v6.4.0-beta-universal.apk */
-                                val srcFileName = "$flavorNameInrt-v$verName-universal.$ext".also {
+                                /* e.g. inrt-v6.4.0-beta-arm64-v8a.apk */
+                                val srcFileName = "$flavorNameInrt-v$verName-arm64-v8a.$ext".also {
                                     if (!file(File(src, it)).exists()) {
                                         throw GradleException("Source file \"${file(File(src, it))}\" doesn't exist")
                                     }
@@ -748,9 +748,9 @@ android {
             // Resets the list of ABIs that Gradle should create APKs for to none.
             reset()
             // Specifies a list of ABIs that Gradle should create APKs for.
-            include("arm64-v8a", "x86_64", "armeabi-v7a", "x86", "armeabi")
+            include("arm64-v8a")
             // Specifies that we do not want to also generate a universal APK that includes all ABIs.
-            isUniversalApk = true
+            isUniversalApk = false
         }
     }
 

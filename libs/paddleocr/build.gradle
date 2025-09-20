@@ -106,7 +106,7 @@ android {
             //  ! https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/tools/build_android.sh#L7
             //  ! https://github.com/PaddlePaddle/Paddle-Lite/issues/80
             // noinspection ChromeOsAbiSupport
-            abiFilters "arm64-v8a", "armeabi-v7a"
+            abiFilters "arm64-v8a"
             ldLibs "jnigraphics"
         }
     }

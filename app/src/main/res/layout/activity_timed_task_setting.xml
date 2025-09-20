@@ -78,11 +78,55 @@
                             app:ael_interpolator="fastOutSlowIn"
                             app:ael_orientation="vertical">
 
-                            <TimePicker
-                                android:id="@+id/daily_task_time_picker"
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:timePickerMode="spinner" />
+                                android:orientation="vertical">
+
+                                <TimePicker
+                                    android:id="@+id/daily_task_time_picker"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:timePickerMode="spinner" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="25dp"
+                                    android:layout_marginTop="12dp"
+                                    android:layout_marginEnd="25dp"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/text_random_time_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/daily_task_random_seconds"
+                                        android:layout_width="80dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:gravity="center"
+                                        android:hint="10"
+                                        android:inputType="number"
+                                        android:maxLength="4"
+                                        android:textSize="14sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="6dp"
+                                        android:text="@string/text_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
+
+                                </LinearLayout>
+
+                            </LinearLayout>
 
                         </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
 
@@ -104,61 +148,102 @@
                             app:ael_orientation="vertical">
 
                             <LinearLayout
-                                android:id="@+id/disposable_task_time_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentTop="true"
-                                android:background="?selectableItemBackground"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingTop="6dp"
-                                android:paddingBottom="6dp">
+                                android:orientation="vertical">
 
-                                <org.autojs.autojs.theme.widget.ThemeColorImageViewCompat
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_gravity="center_vertical"
-                                    android:gravity="center"
-                                    android:src="@drawable/ic_schedule_black_48dp" />
-
-                                <TextView
-                                    android:id="@+id/disposable_task_time"
+                                <LinearLayout
+                                    android:id="@+id/disposable_task_time_container"
                                     android:layout_width="match_parent"
-                                    android:layout_height="36dp"
-                                    android:layout_marginStart="12dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="?selectableItemBackground"
                                     android:gravity="center_vertical"
-                                    android:textColor="?android:textColorPrimary"
-                                    android:textSize="16sp" />
+                                    android:orientation="horizontal"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp">
 
-                            </LinearLayout>
+                                    <org.autojs.autojs.theme.widget.ThemeColorImageViewCompat
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center_vertical"
+                                        android:gravity="center"
+                                        android:src="@drawable/ic_schedule_black_48dp" />
 
-                            <LinearLayout
-                                android:id="@+id/disposable_task_date_container"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_below="@+id/disposable_task_time_container"
-                                android:layout_alignParentBottom="true"
-                                android:background="?selectableItemBackground"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingTop="6dp">
+                                    <TextView
+                                        android:id="@+id/disposable_task_time"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="36dp"
+                                        android:layout_marginStart="12dp"
+                                        android:gravity="center_vertical"
+                                        android:textColor="?android:textColorPrimary"
+                                        android:textSize="16sp" />
 
-                                <org.autojs.autojs.theme.widget.ThemeColorImageViewCompat
-                                    android:id="@+id/disposable_task_date_icon"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_gravity="center_vertical"
-                                    android:gravity="center"
-                                    android:src="@drawable/ic_date_range_black_48dp" />
+                                </LinearLayout>
 
-                                <TextView
-                                    android:id="@+id/disposable_task_date"
+                                <LinearLayout
+                                    android:id="@+id/disposable_task_date_container"
                                     android:layout_width="match_parent"
-                                    android:layout_height="36dp"
-                                    android:layout_marginStart="12dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="?selectableItemBackground"
                                     android:gravity="center_vertical"
-                                    android:textColor="?android:textColorPrimary"
-                                    android:textSize="16sp" />
+                                    android:orientation="horizontal"
+                                    android:paddingTop="6dp">
+
+                                    <org.autojs.autojs.theme.widget.ThemeColorImageViewCompat
+                                        android:id="@+id/disposable_task_date_icon"
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center_vertical"
+                                        android:gravity="center"
+                                        android:src="@drawable/ic_date_range_black_48dp" />
+
+                                    <TextView
+                                        android:id="@+id/disposable_task_date"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="36dp"
+                                        android:layout_marginStart="12dp"
+                                        android:gravity="center_vertical"
+                                        android:textColor="?android:textColorPrimary"
+                                        android:textSize="16sp" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="25dp"
+                                    android:layout_marginTop="12dp"
+                                    android:layout_marginEnd="25dp"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/text_random_time_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/disposable_task_random_seconds"
+                                        android:layout_width="80dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:gravity="center"
+                                        android:hint="10"
+                                        android:inputType="number"
+                                        android:maxLength="4"
+                                        android:textSize="14sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="6dp"
+                                        android:text="@string/text_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
+
+                                </LinearLayout>
 
                             </LinearLayout>
 
@@ -249,6 +334,43 @@
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
                                         android:text="@string/text_day7" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="25dp"
+                                    android:layout_marginTop="12dp"
+                                    android:layout_marginEnd="25dp"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/text_random_time_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/weekly_task_random_seconds"
+                                        android:layout_width="80dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:gravity="center"
+                                        android:hint="10"
+                                        android:inputType="number"
+                                        android:maxLength="4"
+                                        android:textSize="14sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="6dp"
+                                        android:text="@string/text_seconds"
+                                        android:textColor="?android:textColorSecondary"
+                                        android:textSize="14sp" />
 
                                 </LinearLayout>
 

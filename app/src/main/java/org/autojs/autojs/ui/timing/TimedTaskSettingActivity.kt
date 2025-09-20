@@ -77,6 +77,9 @@ class TimedTaskSettingActivity : BaseActivity() {
     private lateinit var mDailyTaskTimePicker: TimePicker
     private lateinit var mWeeklyTaskTimePicker: TimePicker
     private lateinit var mWeeklyTaskContainer: LinearLayout
+    private lateinit var mDailyTaskRandomSeconds: EditText
+    private lateinit var mWeeklyTaskRandomSeconds: EditText
+    private lateinit var mDisposableTaskRandomSeconds: EditText
 
     private val mDayOfWeekCheckBoxes: MutableList<CheckBox> = ArrayList()
 
@@ -109,8 +112,14 @@ class TimedTaskSettingActivity : BaseActivity() {
         mWeeklyTaskTimePicker = binding.weeklyTaskTimePicker.apply {
             setIs24HourView(true)
         }
+        mWeeklyTaskRandomSeconds = binding.weeklyTaskRandomSeconds.apply {
+            setText("10")
+        }
         mDailyTaskTimePicker = binding.dailyTaskTimePicker.apply {
             setIs24HourView(true)
+        }
+        mDailyTaskRandomSeconds = binding.dailyTaskRandomSeconds.apply {
+            setText("10")
         }
         mDailyTaskRadio = binding.dailyTaskRadio.apply {
             setUpRadioButton()
@@ -131,6 +140,9 @@ class TimedTaskSettingActivity : BaseActivity() {
         mDisposableTaskDate = binding.disposableTaskDate.apply {
             text = DATE_FORMATTER.print(LocalDate.now())
             setOnClickListener { showDisposableTaskDatePicker() }
+        }
+        mDisposableTaskRandomSeconds = binding.disposableTaskRandomSeconds.apply {
+            setText("10")
         }
 
         loadTaskFromIntent()
@@ -229,13 +241,16 @@ class TimedTaskSettingActivity : BaseActivity() {
             mDisposableTaskRadio.isChecked = true
             mDisposableTaskTime.text = TIME_FORMATTER.print(timedTask.millis)
             mDisposableTaskDate.text = DATE_FORMATTER.print(timedTask.millis)
+            mDisposableTaskRandomSeconds.setText(if (timedTask.randomSeconds > 0) timedTask.randomSeconds.toString() else "10")
             return
         }
         val time = LocalTime.fromMillisOfDay(timedTask.millis)
         mDailyTaskTimePicker.hour = time.hourOfDay
         mDailyTaskTimePicker.minute = time.minuteOfHour
+        mDailyTaskRandomSeconds.setText(if (timedTask.randomSeconds > 0) timedTask.randomSeconds.toString() else "10")
         mWeeklyTaskTimePicker.hour = time.hourOfDay
         mWeeklyTaskTimePicker.minute = time.minuteOfHour
+        mWeeklyTaskRandomSeconds.setText(if (timedTask.randomSeconds > 0) timedTask.randomSeconds.toString() else "10")
         if (timedTask.isDaily) {
             mDailyTaskRadio.isChecked = true
         } else {
@@ -323,12 +338,30 @@ class TimedTaskSettingActivity : BaseActivity() {
             return null
         }
         val time = LocalTime(mWeeklyTaskTimePicker.hour, mWeeklyTaskTimePicker.minute)
-        return TimedTask.weeklyTask(time, timeFlag, mScriptFile.path, default)
+        val task = TimedTask.weeklyTask(time, timeFlag, mScriptFile.path, default)
+        val randomSecondsText = mWeeklyTaskRandomSeconds.text.toString()
+        if (randomSecondsText.isNotEmpty()) {
+            try {
+                task.randomSeconds = randomSecondsText.toInt()
+            } catch (e: NumberFormatException) {
+                // Ignore invalid input
+            }
+        }
+        return task
     }
 
     private fun createDailyTask(): TimedTask {
         val time = LocalTime(mDailyTaskTimePicker.hour, mDailyTaskTimePicker.minute)
-        return TimedTask.dailyTask(time, mScriptFile.path, ExecutionConfig())
+        val task = TimedTask.dailyTask(time, mScriptFile.path, ExecutionConfig())
+        val randomSecondsText = mDailyTaskRandomSeconds.text.toString()
+        if (randomSecondsText.isNotEmpty()) {
+            try {
+                task.randomSeconds = randomSecondsText.toInt()
+            } catch (e: NumberFormatException) {
+                // Ignore invalid input
+            }
+        }
+        return task
     }
 
     private fun createDisposableTask(): TimedTask? {
@@ -342,7 +375,16 @@ class TimedTaskSettingActivity : BaseActivity() {
             showToast(this, R.string.text_disposable_task_time_before_now)
             return null
         }
-        return TimedTask.disposableTask(dateTime, mScriptFile.path, default)
+        val task = TimedTask.disposableTask(dateTime, mScriptFile.path, default)
+        val randomSecondsText = mDisposableTaskRandomSeconds.text.toString()
+        if (randomSecondsText.isNotEmpty()) {
+            try {
+                task.randomSeconds = randomSecondsText.toInt()
+            } catch (e: NumberFormatException) {
+                // Ignore invalid input
+            }
+        }
+        return task
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -734,6 +734,7 @@
     <string name="text_country_code_must_be_two_capital_letters">Country code must be two capital letters</string>
     <string name="text_current_version">Current version</string>
     <string name="text_daily_task">Daily task</string>
+    <string name="text_random_time_seconds">Random delay</string>
     <string name="text_date">Date</string>
     <string name="text_day1">Mon</string>
     <string name="text_day2">Tue</string>
@@ -1169,6 +1170,7 @@
     <string name="text_save_to">Save to</string>
     <string name="text_script_record">Script recording</string>
     <string name="text_script_running">Script running</string>
+    <string name="text_seconds">seconds</string>
     <string name="text_search">Search</string>
     <string name="text_search_all_colors">Search all colors</string>
     <string name="text_search_color">Search color</string>

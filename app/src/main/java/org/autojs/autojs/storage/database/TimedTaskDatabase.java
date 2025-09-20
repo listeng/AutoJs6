@@ -10,7 +10,7 @@ import org.autojs.autojs.timing.TimedTask;
 
 public class TimedTaskDatabase extends Database<TimedTask> {
 
-    private static final int VERSION = 3;
+    private static final int VERSION = 5;
     private static final String NAME = "TimedTaskDatabase";
 
     public TimedTaskDatabase(Context context) {
@@ -27,6 +27,8 @@ public class TimedTaskDatabase extends Database<TimedTask> {
         values.put("loop_times", model.getLoopTimes());
         values.put("millis", model.getMillis());
         values.put("script_path", model.getScriptPath());
+        values.put("random_seconds", model.getRandomSeconds());
+        values.put("scheduled_time", model.getScheduledTime());
         return values;
     }
 
@@ -41,6 +43,14 @@ public class TimedTaskDatabase extends Database<TimedTask> {
         task.setLoopTimes(cursor.getInt(5));
         task.setMillis(cursor.getLong(6));
         task.setScriptPath(cursor.getString(7));
+        // Handle the random_seconds field (check if column exists for compatibility)
+        if (cursor.getColumnCount() > 8) {
+            task.setRandomSeconds(cursor.getInt(8));
+        }
+        // Handle the scheduled_time field (check if column exists for compatibility)
+        if (cursor.getColumnCount() > 9) {
+            task.setScheduledTime(cursor.getLong(9));
+        }
         return task;
     }
 
@@ -60,12 +70,29 @@ public class TimedTaskDatabase extends Database<TimedTask> {
                     "`interval` INTEGER, " +
                     "`loop_times` INTEGER, " +
                     "`millis` INTEGER, " +
-                    "`script_path` TEXT);");
+                    "`script_path` TEXT, " +
+                    "`random_seconds` INTEGER DEFAULT 0, " +
+                    "`scheduled_time` INTEGER DEFAULT -1);");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            /* Empty body. */
+            if (oldVersion < 4) {
+                // Add random_seconds column for version 4
+                try {
+                    db.execSQL("ALTER TABLE `" + TimedTask.TABLE + "` ADD COLUMN `random_seconds` INTEGER DEFAULT 0");
+                } catch (Exception e) {
+                    // Column might already exist, ignore
+                }
+            }
+            if (oldVersion < 5) {
+                // Add scheduled_time column for version 5
+                try {
+                    db.execSQL("ALTER TABLE `" + TimedTask.TABLE + "` ADD COLUMN `scheduled_time` INTEGER DEFAULT -1");
+                } catch (Exception e) {
+                    // Column might already exist, ignore
+                }
+            }
         }
     }
 

@@ -46,6 +46,10 @@ public class TimedTask extends BaseModel {
 
     long mMillis;
 
+    int mRandomSeconds = 0;
+
+    long mScheduledTime = -1; // Actual scheduled execution time with random offset
+
     String mScriptPath;
 
     private final Context mGlobalAppContext = GlobalAppContext.get();
@@ -73,6 +77,10 @@ public class TimedTask extends BaseModel {
 
     public void setScheduled(boolean scheduled) {
         mScheduled = scheduled;
+        // Clear scheduled time when unscheduling
+        if (!scheduled) {
+            mScheduledTime = -1;
+        }
     }
 
     @ScriptInterface
@@ -81,19 +89,33 @@ public class TimedTask extends BaseModel {
     }
 
     public long getNextTime(Context context) {
-        if (isDisposable()) {
-            return mMillis;
+        // If task is already scheduled with a specific time, return that time
+        if (mScheduled && mScheduledTime > 0) {
+            return mScheduledTime;
         }
-        if (isDaily()) {
+        
+        long baseTime;
+        if (isDisposable()) {
+            baseTime = mMillis;
+        } else if (isDaily()) {
             LocalTime time = LocalTime.fromMillisOfDay(mMillis);
             long nextTimeMillis = time.toDateTimeToday().getMillis();
             if (System.currentTimeMillis() > nextTimeMillis) {
-                return nextTimeMillis + TimeUnit.DAYS.toMillis(1);
+                nextTimeMillis += TimeUnit.DAYS.toMillis(1);
             }
-            return nextTimeMillis;
+            baseTime = nextTimeMillis;
+        } else {
+            baseTime = getNextTimeOfWeeklyTask(context);
         }
-        return getNextTimeOfWeeklyTask(context);
-
+        
+        // Apply random offset if configured
+        if (mRandomSeconds > 0 && baseTime > 0) {
+            // Generate random offset between 0 and +mRandomSeconds (only forward)
+            int randomOffset = (int) (Math.random() * (mRandomSeconds + 1));
+            baseTime += randomOffset * 1000L; // Convert seconds to milliseconds
+        }
+        
+        return baseTime;
     }
 
     @ScriptInterface
@@ -190,8 +212,57 @@ public class TimedTask extends BaseModel {
         mScriptPath = scriptPath;
     }
 
+    public int getRandomSeconds() {
+        return mRandomSeconds;
+    }
+
+    public void setRandomSeconds(int randomSeconds) {
+        mRandomSeconds = randomSeconds;
+        // Clear scheduled time when random seconds change
+        if (mScheduled) {
+            mScheduledTime = -1;
+        }
+    }
+
     public boolean isDaily() {
         return mTimeFlag == FLAG_EVERYDAY;
+    }
+
+    public long getScheduledTime() {
+        return mScheduledTime;
+    }
+
+    public void setScheduledTime(long scheduledTime) {
+        mScheduledTime = scheduledTime;
+    }
+
+    /**
+     * Calculate and set the actual scheduled time with random offset
+     * This should be called when the task is being scheduled
+     */
+    public void calculateAndSetScheduledTime(Context context) {
+        long baseTime;
+        if (isDisposable()) {
+            baseTime = mMillis;
+        } else if (isDaily()) {
+            LocalTime time = LocalTime.fromMillisOfDay(mMillis);
+            long nextTimeMillis = time.toDateTimeToday().getMillis();
+            if (System.currentTimeMillis() > nextTimeMillis) {
+                nextTimeMillis += TimeUnit.DAYS.toMillis(1);
+            }
+            baseTime = nextTimeMillis;
+        } else {
+            baseTime = getNextTimeOfWeeklyTask(context);
+        }
+        
+        // Apply random offset if configured
+        if (mRandomSeconds > 0 && baseTime > 0) {
+            // Generate random offset between 0 and +mRandomSeconds (only forward)
+            int randomOffset = (int) (Math.random() * (mRandomSeconds + 1));
+            baseTime += randomOffset * 1000L; // Convert seconds to milliseconds
+        }
+        
+        mScheduledTime = baseTime;
     }
 
     public Intent createIntent() {
@@ -219,6 +290,8 @@ public class TimedTask extends BaseModel {
                 ", mInterval=" + mInterval +
                 ", mLoopTimes=" + mLoopTimes +
                 ", mMillis=" + mMillis +
+                ", mRandomSeconds=" + mRandomSeconds +
+                ", mScheduledTime=" + mScheduledTime +
                 ", mScriptPath='" + mScriptPath + '\'' +
                 '}';
     }
